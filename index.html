@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>CharterConnect — Book Private Flights</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+--bg:#ffffff;--bg-secondary:#f5f5f3;--bg-tertiary:#f0efe8;
+--bg-info:#e6f1fb;--bg-success:#eaf3de;--bg-warning:#faeeda;
+--text:#1a1a18;--text-secondary:#5f5e5a;--text-tertiary:#888780;
+--text-info:#0c447c;--text-success:#27500a;--text-warning:#633806;
+--border:rgba(0,0,0,0.12);--border-hover:rgba(0,0,0,0.25);
+--border-info:rgba(24,95,165,0.4);
+--radius-md:8px;--radius-lg:12px;
+--font:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+}
+@media(prefers-color-scheme:dark){
+:root{
+--bg:#1e1e1c;--bg-secondary:#2a2a28;--bg-tertiary:#242422;
+--bg-info:#0c2a48;--bg-success:#162d06;--bg-warning:#2e1a03;
+--text:#f0efe8;--text-secondary:#b4b2a9;--text-tertiary:#888780;
+--text-info:#85b7eb;--text-success:#97c459;--text-warning:#ef9f27;
+--border:rgba(255,255,255,0.12);--border-hover:rgba(255,255,255,0.25);
+}
+}
+body{font-family:var(--font);background:var(--bg-tertiary);color:var(--text);min-height:100vh;font-size:15px;line-height:1.6}
+nav{background:var(--bg);border-bottom:0.5px solid var(--border);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.logo{font-size:18px;font-weight:500;color:var(--text);cursor:pointer}
+.logo span{color:var(--text-info)}
+.nav-links{display:flex;gap:24px}
+.nav-links a{font-size:14px;color:var(--text-secondary);text-decoration:none;cursor:pointer}
+.page{display:none;max-width:640px;margin:0 auto;padding:32px 16px 64px}
+.page.active{display:block}
+h1{font-size:26px;font-weight:500;margin-bottom:6px}
+h2{font-size:20px;font-weight:500;margin-bottom:6px}
+.subtitle{font-size:14px;color:var(--text-secondary);margin-bottom:28px}
+.card{background:var(--bg);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:1rem 1.25rem;margin-bottom:12px}
+.section-label{font-size:12px;font-weight:500;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:.05em;margin:24px 0 8px}
+.field-group{margin-bottom:14px}
+.field-label{font-size:13px;color:var(--text-secondary);display:block;margin-bottom:5px}
+input[type=text],input[type=number],input[type=date],input[type=time],input[type=password]{width:100%;height:38px;padding:0 12px;border:0.5px solid var(--border-hover);border-radius:var(--radius-md);background:var(--bg);color:var(--text);font-size:14px;font-family:var(--font);outline:none}
+input:focus{border-color:var(--border-info);box-shadow:0 0 0 3px rgba(24,95,165,.12)}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.toggle-group{display:flex;gap:6px}
+.toggle-btn{flex:1;padding:8px;font-size:13px;border:0.5px solid var(--border-hover);border-radius:var(--radius-md);background:transparent;color:var(--text-secondary);cursor:pointer;font-family:var(--font)}
+.toggle-btn.active{background:var(--bg-info);color:var(--text-info);border-color:var(--border-info)}
+.btn-primary{width:100%;padding:13px;font-size:15px;font-weight:500;background:#185fa5;color:#fff;border:none;border-radius:var(--radius-md);cursor:pointer;font-family:var(--font);margin-top:8px}
+.btn-success{width:100%;padding:13px;font-size:15px;font-weight:500;background:#3b6d11;color:#fff;border:none;border-radius:var(--radius-md);cursor:pointer;font-family:var(--font);margin-top:8px}
+.btn-outline{width:100%;padding:11px;font-size:14px;background:transparent;border:0.5px solid var(--border-hover);border-radius:var(--radius-md);cursor:pointer;color:var(--text-secondary);font-family:var(--font);margin-top:8px}
+.btn-select{padding:7px 16px;font-size:13px;background:transparent;border:0.5px solid var(--border-hover);border-radius:var(--radius-md);cursor:pointer;color:var(--text);font-family:var(--font)}
+.badge{display:inline-block;font-size:11px;font-weight:500;padding:3px 10px;border-radius:20px}
+.badge-success{background:var(--bg-success);color:var(--text-success)}
+.badge-warning{background:var(--bg-warning);color:var(--text-warning)}
+.divider{border:none;border-top:0.5px solid var(--border);margin:14px 0}
+.row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:0.5px solid var(--border);font-size:14px}
+.row:last-child{border-bottom:none}
+.row-label{color:var(--text-secondary)}
+.row-value{font-weight:500}
+.trip-summary{background:var(--bg-secondary);border-radius:var(--radius-md);padding:12px 16px;margin-bottom:20px;display:flex;gap:20px;flex-wrap:wrap}
+.trip-item{font-size:13px;color:var(--text-secondary)}
+.trip-item span{color:var(--text);font-weight:500;display:block;font-size:14px}
+.quote-card{background:var(--bg);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:1rem 1.25rem;margin-bottom:10px}
+.quote-card.pending{opacity:.65}
+.op-name{font-size:15px;font-weight:500;margin-bottom:2px}
+.op-meta{font-size:13px;color:var(--text-secondary)}
+.detail-row{display:flex;gap:16px;margin-top:10px;flex-wrap:wrap}
+.detail-item{font-size:12px;color:var(--text-secondary)}
+.detail-item strong{color:var(--text);font-weight:500}
+.quote-footer{display:flex;justify-content:space-between;align-items:center;margin-top:14px;padding-top:12px;border-top:0.5px solid var(--border)}
+.quote-amount{font-size:22px;font-weight:500}
+.quote-amount-label{font-size:12px;color:var(--text-secondary)}
+.pay-tabs{display:flex}
+.pay-tab{flex:1;padding:10px 8px;font-size:13px;border:0.5px solid var(--border-hover);background:transparent;color:var(--text-secondary);cursor:pointer;font-family:var(--font);text-align:center}
+.pay-tab:first-child{border-radius:var(--radius-md) 0 0 var(--radius-md)}
+.pay-tab:last-child{border-radius:0 var(--radius-md) var(--radius-md) 0}
+.pay-tab.active{background:var(--bg-info);color:var(--text-info);border-color:var(--border-info);font-weight:500}
+.pay-panel{display:none;margin-top:16px}
+.pay-panel.active{display:block}
+.upi-apps{display:flex;gap:8px;margin-bottom:12px}
+.upi-app{flex:1;padding:9px 6px;border:0.5px solid var(--border-hover);border-radius:var(--radius-md);font-size:12px;text-align:center;cursor:pointer;color:var(--text);background:transparent;font-family:var(--font)}
+.upi-app.active{border-color:var(--border-info);background:var(--bg-info);color:var(--text-info)}
+.bank-option{display:flex;align-items:center;gap:10px;padding:10px 12px;border:0.5px solid var(--border);border-radius:var(--radius-md);margin-bottom:8px;cursor:pointer;font-size:14px}
+.bank-option.active{border-color:var(--border-info);background:var(--bg-info);color:var(--text-info)}
+.success-banner{background:var(--bg-success);border-radius:var(--radius-lg);padding:28px 20px;text-align:center;margin-bottom:20px}
+.check-circle{width:56px;height:56px;border-radius:50%;background:var(--bg);display:flex;align-items:center;justify-content:center;margin:0 auto 14px}
+.ref-box{background:rgba(0,0,0,.06);border-radius:var(--radius-md);padding:12px 16px;display:flex;justify-content:space-between;align-items:center;margin-top:14px}
+.ref-code{font-size:18px;font-weight:500;letter-spacing:.06em;font-family:monospace}
+.timeline{list-style:none}
+.timeline li{display:flex;gap:12px;padding-bottom:16px}
+.timeline li:last-child{padding-bottom:0}
+.tl-dot{width:10px;height:10px;border-radius:50%;margin-top:5px;flex-shrink:0}
+.tl-done{background:#3b6d11}
+.tl-pending{background:transparent;border:2px solid var(--border-hover)}
+.tl-text{font-size:13px}
+.tl-sub{font-size:12px;color:var(--text-secondary)}
+.total-row{display:flex;justify-content:space-between;align-items:center;padding-top:12px;margin-top:4px}
+@media(max-width:480px){.grid-2,.grid-3{grid-template-columns:1fr}.nav-links{display:none}}
+</style>
+</head>
+<body>
+<nav>
+  <span class="logo" onclick="showPage('search')">Charter<span>Connect</span></span>
+  <div class="nav-links">
+    <a onclick="showPage('search')">Search flights</a>
+    <a onclick="showPage('confirmed')">My bookings</a>
+  </div>
+</nav>
+
+<!-- Search Page -->
+<div class="page active" id="page-search">
+  <h1>Book a charter flight</h1>
+  <p class="subtitle">Get real-time quotes from verified operators across India</p>
+  <div class="card">
+    <div class="grid-2">
+      <div class="field-group"><label class="field-label">Departure city</label><input type="text" id="departure" placeholder="e.g. Mumbai"/></div>
+      <div class="field-group"><label class="field-label">Destination city</label><input type="text" id="destination" placeholder="e.g. Delhi"/></div>
+    </div>
+    <div class="grid-2">
+      <div class="field-group"><label class="field-label">Date</label><input type="date" id="flight-date"/></div>
+      <div class="field-group"><label class="field-label">Time</label><input type="time" id="flight-time"/></div>
+    </div>
+    <div class="field-group"><label class="field-label">Number of passengers</label><input type="number" id="passengers" min="1" max="50" placeholder="e.g. 4"/></div>
+    <hr class="divider"/>
+    <p style="font-size:12px;font-weight:500;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:.05em;margin-bottom:14px;">Special requirements</p>
+    <div class="grid-3">
+      <div class="field-group"><label class="field-label">Medivac flight?</label><div class="toggle-group"><button class="toggle-btn" onclick="tog(this)">Yes</button><button class="toggle-btn active" onclick="tog(this)">No</button></div></div>
+      <div class="field-group"><label class="field-label">Pets?</label><div class="toggle-group"><button class="toggle-btn" onclick="tog(this)">Yes</button><button class="toggle-btn active" onclick="tog(this)">No</button></div></div>
+      <div class="field-group"><label class="field-label">Infants / children?</label><div class="toggle-group"><button class="toggle-btn" onclick="tog(this)">Yes</button><button class="toggle-btn active" onclick="tog(this)">No</button></div></div>
+    </div>
+    <button class="btn-primary" onclick="goToResults()">Search available operators</button>
+  </div>
+</div>
+
+<!-- Results Page -->
+<div class="page" id="page-results">
+  <h2>Charter quotes</h2>
+  <p class="subtitle">Operators have been notified of your request</p>
+  <div class="trip-summary">
+    <div class="trip-item"><span id="rs-route">Mumbai → Delhi</span>Route</div>
+    <div class="trip-item"><span id="rs-date">28 Mar 2026</span>Departure</div>
+    <div class="trip-item"><span id="rs-pax">4 passengers</span>Pax</div>
+  </div>
+  <p class="section-label">Quotes received — 2</p>
+  <div class="quote-card">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+      <div><p class="op-name">Blue Sky Charters</p><p class="op-meta">Cessna Citation XLS · Mumbai base</p></div>
+      <span class="badge badge-success">Quote received</span>
+    </div>
+    <div class="detail-row">
+      <div class="detail-item">Aircraft <strong>Citation XLS</strong></div>
+      <div class="detail-item">Capacity <strong>8 seats</strong></div>
+      <div class="detail-item">Flight time <strong>~1h 45m</strong></div>
+    </div>
+    <div class="quote-footer">
+      <div><p class="quote-amount-label">Quoted price</p><p class="quote-amount">₹3,20,000</p></div>
+      <button class="btn-select" onclick="selectOp('Blue Sky Charters','Citation XLS','₹3,20,000','₹3,00,000','₹20,000')">Select operator</button>
+    </div>
+  </div>
+  <div class="quote-card">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+      <div><p class="op-name">Falcon Aviation</p><p class="op-meta">Bombardier Learjet 45 · Delhi base</p></div>
+      <span class="badge badge-success">Quote received</span>
+    </div>
+    <div class="detail-row">
+      <div class="detail-item">Aircraft <strong>Learjet 45</strong></div>
+      <div class="detail-item">Capacity <strong>7 seats</strong></div>
+      <div class="detail-item">Flight time <strong>~1h 55m</strong></div>
+    </div>
+    <div class="quote-footer">
+      <div><p class="quote-amount-label">Quoted price</p><p class="quote-amount">₹2,95,000</p></div>
+      <button class="btn-select" onclick="selectOp('Falcon Aviation','Learjet 45','₹2,95,000','₹2,75,000','₹20,000')">Select operator</button>
+    </div>
+  </div>
+  <p class="section-label">Awaiting response — 3</p>
+  <div class="quote-card pending"><div style="display:flex;justify-content:space-between;"><div><p class="op-name">Air Pegasus</p><p class="op-meta">Bangalore base</p></div><span class="badge badge-warning">Pending</span></div><p style="font-size:13px;color:var(--text-secondary);margin-top:8px;">Waiting for operator to respond...</p></div>
+  <div class="quote-card pending"><div style="display:flex;justify-content:space-between;"><div><p class="op-name">Zenith Air</p><p class="op-meta">Mumbai base</p></div><span class="badge badge-warning">Pending</span></div><p style="font-size:13px;color:var(--text-secondary);margin-top:8px;">Waiting for operator to respond...</p></div>
+  <div class="quote-card pending"><div style="display:flex;justify-content:space-between;"><div><p class="op-name">SkyWings India</p><p class="op-meta">Hyderabad base</p></div><span class="badge badge-warning">Pending</span></div><p style="font-size:13px;color:var(--text-secondary);margin-top:8px;">Waiting for operator to respond...</p></div>
+  <button class="btn-outline" onclick="showPage('search')">← Modify search</button>
+</div>
+
+<!-- Payment Page -->
+<div class="page" id="page-payment">
+  <h2>Confirm &amp; pay</h2>
+  <p class="subtitle" id="pay-subtitle">Complete your booking</p>
+  <p class="section-label">Booking summary</p>
+  <div class="card">
+    <div class="row"><span class="row-label">Operator</span><span class="row-value" id="pay-op"></span></div>
+    <div class="row"><span class="row-label">Aircraft</span><span class="row-value" id="pay-aircraft"></span></div>
+    <div class="row"><span class="row-label">Route</span><span class="row-value" id="pay-route"></span></div>
+    <div class="row"><span class="row-label">Date &amp; time</span><span class="row-value" id="pay-date"></span></div>
+    <div class="row"><span class="row-label">Passengers</span><span class="row-value" id="pay-pax"></span></div>
+    <div class="row"><span class="row-label">Charter fee</span><span class="row-value" id="pay-charter"></span></div>
+    <div class="row"><span class="row-label">Platform fee</span><span class="row-value" id="pay-platform"></span></div>
+    <div class="total-row"><span style="font-size:15px;font-weight:500;">Total payable</span><span style="font-size:22px;font-weight:500;" id="pay-total"></span></div>
+  </div>
+  <p class="section-label">Payment method</p>
+  <div class="card">
+    <div class="pay-tabs">
+      <button class="pay-tab active" id="tab-card" onclick="switchTab('card')">Card</button>
+      <button class="pay-tab" id="tab-upi" onclick="switchTab('upi')">UPI</button>
+      <button class="pay-tab" id="tab-nb" onclick="switchTab('nb')">Net banking</button>
+    </div>
+    <div class="pay-panel active" id="panel-card">
+      <div class="field-group"><label class="field-label">Card number</label><input type="text" placeholder="1234 5678 9012 3456" maxlength="19"/></div>
+      <div class="field-group"><label class="field-label">Cardholder name</label><input type="text" placeholder="As on card"/></div>
+      <div class="grid-2">
+        <div class="field-group"><label class="field-label">Expiry</label><input type="text" placeholder="MM / YY" maxlength="7"/></div>
+        <div class="field-group"><label class="field-label">CVV</label><input type="password" placeholder="•••" maxlength="4"/></div>
+      </div>
+    </div>
+    <div class="pay-panel" id="panel-upi">
+      <p style="font-size:13px;color:var(--text-secondary);margin-bottom:10px;">Choose your UPI app</p>
+      <div class="upi-apps">
+        <button class="upi-app active" onclick="selUpi(this)">GPay</button>
+        <button class="upi-app" onclick="selUpi(this)">PhonePe</button>
+        <button class="upi-app" onclick="selUpi(this)">Paytm</button>
+        <button class="upi-app" onclick="selUpi(this)">BHIM</button>
+      </div>
+      <div class="field-group"><label class="field-label">Or enter UPI ID</label><input type="text" placeholder="yourname@upi"/></div>
+    </div>
+    <div class="pay-panel" id="panel-nb">
+      <p style="font-size:13px;color:var(--text-secondary);margin-bottom:10px;">Select your bank</p>
+      <div class="bank-option active" onclick="selBank(this)"><input type="radio" name="bank" checked/><span>HDFC Bank</span></div>
+      <div class="bank-option" onclick="selBank(this)"><input type="radio" name="bank"/><span>ICICI Bank</span></div>
+      <div class="bank-option" onclick="selBank(this)"><input type="radio" name="bank"/><span>SBI</span></div>
+      <div class="bank-option" onclick="selBank(this)"><input type="radio" name="bank"/><span>Axis Bank</span></div>
+      <div class="field-group" style="margin-top:10px;"><label class="field-label">Or search for your bank</label><input type="text" placeholder="Search bank..."/></div>
+    </div>
+  </div>
+  <button class="btn-success" id="pay-btn" onclick="confirmBooking()">Pay &amp; confirm booking</button>
+  <button class="btn-outline" onclick="showPage('results')">← Back to quotes</button>
+</div>
+
+<!-- Confirmation Page -->
+<div class="page" id="page-confirmed">
+  <div class="success-banner">
+    <div class="check-circle">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#3b6d11" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+    </div>
+    <p style="font-size:18px;font-weight:500;color:var(--text-success);margin-bottom:4px;">Booking confirmed!</p>
+    <p style="font-size:13px;color:var(--text-success);opacity:.8;" id="conf-notice"></p>
+    <div class="ref-box">
+      <span style="font-size:12px;color:var(--text-secondary);">Booking reference</span>
+      <span class="ref-code" id="conf-ref"></span>
+    </div>
+  </div>
+  <p class="section-label">Flight summary</p>
+  <div class="card">
+    <div class="row"><span class="row-label">Route</span><span class="row-value" id="conf-route"></span></div>
+    <div class="row"><span class="row-label">Date &amp; time</span><span class="row-value" id="conf-date"></span></div>
+    <div class="row"><span class="row-label">Operator</span><span class="row-value" id="conf-op"></span></div>
+    <div class="row"><span class="row-label">Aircraft</span><span class="row-value" id="conf-aircraft"></span></div>
+    <div class="row"><span class="row-label">Passengers</span><span class="row-value" id="conf-pax"></span></div>
+    <div class="row"><span class="row-label">Amount paid</span><span class="row-value" id="conf-total"></span></div>
+  </div>
+  <p class="section-label">What happens next</p>
+  <div class="card">
+    <ul class="timeline">
+      <li><div class="tl-dot tl-done"></div><div><p class="tl-text">Booking request sent</p><p class="tl-sub">Operator notified immediately</p></div></li>
+      <li><div class="tl-dot tl-done"></div><div><p class="tl-text">Operator confirmation</p><p class="tl-sub" id="conf-op-tl"></p></div></li>
+      <li><div class="tl-dot tl-pending"></div><div><p class="tl-text">Flight briefing</p><p class="tl-sub">Operator will share final details 24hrs before departure</p></div></li>
+      <li><div class="tl-dot tl-pending"></div><div><p class="tl-text">Departure</p><p class="tl-sub" id="conf-dep"></p></div></li>
+    </ul>
+  </div>
+  <button class="btn-primary" onclick="showPage('search')">Book another flight</button>
+  <button class="btn-outline">Download confirmation</button>
+</div>
+
+<script>
+var op = {};
+
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('active'); });
+  document.getElementById('page-' + id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+function tog(el) {
+  var s = el.parentElement.querySelectorAll('.toggle-btn');
+  s.forEach(function(b) { b.classList.remove('active'); });
+  el.classList.add('active');
+}
+
+function fmtDate(d) {
+  var m = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var p = d.split('-');
+  return parseInt(p[2]) + ' ' + m[parseInt(p[1]) - 1] + ' ' + p[0];
+}
+
+function fmtTime(t) {
+  var p = t.split(':');
+  var h = parseInt(p[0]);
+  var ap = h >= 12 ? 'PM' : 'AM';
+  h = h % 12 || 12;
+  return h + ':' + p[1] + ' ' + ap;
+}
+
+function goToResults() {
+  var dep = document.getElementById('departure').value || 'Mumbai';
+  var dest = document.getElementById('destination').value || 'Delhi';
+  var d = document.getElementById('flight-date').value;
+  var t = document.getElementById('flight-time').value;
+  var px = document.getElementById('passengers').value || '4';
+  document.getElementById('rs-route').textContent = dep + ' → ' + dest;
+  document.getElementById('rs-date').textContent = (d ? fmtDate(d) : '28 Mar 2026') + (t ? ', ' + fmtTime(t) : ', 10:00 AM');
+  document.getElementById('rs-pax').textContent = px + ' passenger' + (px == 1 ? '' : 's');
+  showPage('results');
+}
+
+function selectOp(name, aircraft, total, charter, platform) {
+  op = { name: name, aircraft: aircraft, total: total, charter: charter, platform: platform };
+  var route = document.getElementById('rs-route').textContent;
+  var date = document.getElementById('rs-date').textContent;
+  var pax = document.getElementById('rs-pax').textContent;
+  document.getElementById('pay-subtitle').textContent = 'Complete your booking with ' + name;
+  document.getElementById('pay-op').textContent = name;
+  document.getElementById('pay-aircraft').textContent = aircraft;
+  document.getElementById('pay-route').textContent = route;
+  document.getElementById('pay-date').textContent = date;
+  document.getElementById('pay-pax').textContent = pax;
+  document.getElementById('pay-charter').textContent = charter;
+  document.getElementById('pay-platform').textContent = platform;
+  document.getElementById('pay-total').textContent = total;
+  document.getElementById('pay-btn').textContent = 'Pay ' + total + ' & confirm booking';
+  showPage('payment');
+}
+
+function confirmBooking() {
+  var route = document.getElementById('rs-route').textContent;
+  var date = document.getElementById('rs-date').textContent;
+  var pax = document.getElementById('rs-pax').textContent;
+  document.getElementById('conf-route').textContent = route;
+  document.getElementById('conf-date').textContent = date;
+  document.getElementById('conf-op').textContent = op.name;
+  document.getElementById('conf-aircraft').textContent = op.aircraft;
+  document.getElementById('conf-pax').textContent = pax;
+  document.getElementById('conf-total').textContent = op.total;
+  document.getElementById('conf-notice').textContent = op.name + ' has been notified';
+  document.getElementById('conf-op-tl').textContent = op.name + ' confirmed your booking';
+  document.getElementById('conf-dep').textContent = date;
+  var ini = op.name.split(' ').map(function(w) { return w[0]; }).join('').substring(0, 3);
+  document.getElementById('conf-ref').textContent = ini + '-' + Math.floor(1000 + Math.random() * 9000);
+  showPage('confirmed');
+}
+
+function switchTab(tab) {
+  ['card','upi','nb'].forEach(function(t) {
+    document.getElementById('tab-' + t).classList.remove('active');
+    document.getElementById('panel-' + t).classList.remove('active');
+  });
+  document.getElementById('tab-' + tab).classList.add('active');
+  document.getElementById('panel-' + tab).classList.add('active');
+}
+
+function selUpi(el) {
+  document.querySelectorAll('.upi-app').forEach(function(b) { b.classList.remove('active'); });
+  el.classList.add('active');
+}
+
+function selBank(el) {
+  document.querySelectorAll('.bank-option').forEach(function(b) {
+    b.classList.remove('active');
+    b.querySelector('input').checked = false;
+  });
+  el.classList.add('active');
+  el.querySelector('input').checked = true;
+}
+</script>
+</body>
+</html>
