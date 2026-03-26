@@ -525,6 +525,7 @@ async function doLogin() {
   try {
     // Step 1: get user
     var userRes = await sbFetch('operator_users?username=eq.' + encodeURIComponent(username) + '&is_active=eq.true');
+console.log('User query result:', JSON.stringify(userRes));
     if (!userRes.ok || !userRes.data || userRes.data.length === 0) throw new Error('Invalid credentials');
     var user = userRes.data[0];
     if (user.password_hash !== password) throw new Error('Invalid credentials');
