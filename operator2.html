@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>SkyVayu — Operator Portal</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0C1E36;
+  --bg-secondary:#0E2040;
+  --bg-card:#132B4A;
+  --bg-card-hover:#163354;
+  --gold:#E8D8A0;
+  --gold-dim:rgba(232,216,160,0.6);
+  --blue:#185FA5;
+  --blue-light:#85B7EB;
+  --blue-faint:rgba(24,95,165,0.15);
+  --blue-border:rgba(133,183,235,0.2);
+  --green:#3B6D11;
+  --green-light:#97C459;
+  --green-faint:rgba(59,109,17,0.2);
+  --red:#E24B4A;
+  --red-faint:rgba(226,75,74,0.12);
+  --amber:#EF9F27;
+  --amber-faint:rgba(239,159,39,0.12);
+  --text:#EEE8D5;
+  --text-secondary:rgba(232,216,160,0.55);
+  --text-tertiary:rgba(133,183,235,0.5);
+  --border:rgba(133,183,235,0.12);
+  --border-hover:rgba(133,183,235,0.28);
+  --radius:8px;
+  --radius-lg:12px;
+  --font-display:Georgia,'Times New Roman',serif;
+  --font:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;font-size:14px;line-height:1.6}
+
+/* ── Login Page ── */
+#page-login{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:24px;}
+.login-box{background:var(--bg-card);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:40px 36px;width:100%;max-width:400px;}
+.login-logo{margin-bottom:28px;text-align:center;}
+.login-logo .sky{font-size:10px;letter-spacing:4px;color:var(--blue-light);text-transform:uppercase;}
+.login-logo .vayu{font-family:var(--font-display);font-size:28px;color:var(--gold);display:block;line-height:1;}
+.login-title{font-family:var(--font-display);font-size:22px;font-weight:300;color:var(--gold);margin-bottom:4px;text-align:center;}
+.login-sub{font-size:12px;color:var(--text-tertiary);text-align:center;margin-bottom:28px;}
+.field-group{margin-bottom:16px;}
+.field-label{font-size:11px;font-weight:500;color:var(--text-tertiary);letter-spacing:.08em;text-transform:uppercase;display:block;margin-bottom:6px;}
+.field-input{width:100%;height:42px;padding:0 14px;background:rgba(255,255,255,0.04);border:0.5px solid var(--border-hover);border-radius:var(--radius);color:var(--text);font-size:14px;font-family:var(--font);outline:none;transition:border-color .2s;}
+.field-input:focus{border-color:var(--blue-light);}
+.field-input.error{border-color:var(--red);}
+.error-msg{font-size:11px;color:var(--red);margin-top:4px;display:none;}
+.error-msg.show{display:block;}
+.btn-primary{width:100%;height:44px;background:var(--blue);color:#fff;border:none;border-radius:var(--radius);font-size:14px;font-weight:500;font-family:var(--font);cursor:pointer;transition:background .2s;margin-top:8px;}
+.btn-primary:hover{background:#1a6dbb;}
+.btn-primary:disabled{background:rgba(24,95,165,0.4);cursor:not-allowed;}
+.login-error{background:var(--red-faint);border:0.5px solid rgba(226,75,74,0.3);border-radius:var(--radius);padding:10px 14px;font-size:13px;color:var(--red);margin-bottom:16px;display:none;}
+.login-error.show{display:block;}
+
+/* ── Main Layout ── */
+#page-dashboard{display:none;}
+#page-dashboard.active{display:flex;min-height:100vh;}
+
+.sidebar{
+  width:240px;flex-shrink:0;
+  background:var(--bg-secondary);
+  border-right:0.5px solid var(--border);
+  display:flex;flex-direction:column;
+  position:sticky;top:0;height:100vh;
+  overflow-y:auto;
+}
+.sidebar-logo{padding:24px 20px 20px;border-bottom:0.5px solid var(--border);}
+.sidebar-logo .sky{font-size:9px;letter-spacing:4px;color:var(--blue-light);text-transform:uppercase;}
+.sidebar-logo .vayu{font-family:var(--font-display);font-size:20px;color:var(--gold);display:block;line-height:1;}
+.sidebar-logo .portal-tag{font-size:10px;color:var(--text-tertiary);margin-top:2px;}
+
+.operator-card{padding:16px 20px;border-bottom:0.5px solid var(--border);}
+.op-name{font-size:13px;font-weight:500;color:var(--text);margin-bottom:2px;}
+.op-role{font-size:11px;color:var(--text-tertiary);}
+.op-online{display:inline-flex;align-items:center;gap:5px;font-size:11px;color:var(--green-light);margin-top:4px;}
+.op-online::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--green-light);}
+
+.nav-section{padding:12px 0;}
+.nav-label{font-size:10px;font-weight:500;color:var(--text-tertiary);letter-spacing:.1em;text-transform:uppercase;padding:6px 20px;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 20px;cursor:pointer;transition:background .15s;color:var(--text-secondary);font-size:13px;}
+.nav-item:hover{background:rgba(255,255,255,0.04);color:var(--text);}
+.nav-item.active{background:var(--blue-faint);color:var(--blue-light);border-right:2px solid var(--blue-light);}
+.nav-item svg{flex-shrink:0;opacity:0.7;}
+.nav-item.active svg{opacity:1;}
+.nav-badge{margin-left:auto;background:var(--blue);color:#fff;font-size:10px;font-weight:500;padding:1px 7px;border-radius:10px;min-width:18px;text-align:center;}
+
+.sidebar-footer{margin-top:auto;padding:16px 20px;border-top:0.5px solid var(--border);}
+.btn-logout{width:100%;height:36px;background:transparent;border:0.5px solid var(--border-hover);border-radius:var(--radius);color:var(--text-secondary);font-size:12px;font-family:var(--font);cursor:pointer;transition:all .2s;}
+.btn-logout:hover{border-color:var(--red);color:var(--red);}
+
+.main{flex:1;overflow-y:auto;}
+.main-header{padding:24px 28px 0;border-bottom:0.5px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.page-title{font-family:var(--font-display);font-size:26px;font-weight:300;color:var(--gold);padding-bottom:20px;}
+.main-content{padding:24px 28px;}
+
+/* ── Cards ── */
+.stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px;}
+.stat-card{background:var(--bg-card);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:18px 20px;}
+.stat-num{font-family:var(--font-display);font-size:32px;font-weight:300;color:var(--gold);line-height:1;}
+.stat-label{font-size:12px;color:var(--text-tertiary);margin-top:4px;}
+.stat-card.blue .stat-num{color:var(--blue-light);}
+.stat-card.green .stat-num{color:var(--green-light);}
+.stat-card.amber .stat-num{color:var(--amber);}
+
+.card{background:var(--bg-card);border:0.5px solid var(--border);border-radius:var(--radius-lg);margin-bottom:16px;}
+.card-header{padding:16px 20px;border-bottom:0.5px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.card-title{font-size:13px;font-weight:500;color:var(--text);}
+.card-body{padding:20px;}
+
+/* ── Query Cards ── */
+.query-card{background:var(--bg-card);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:18px 20px;margin-bottom:12px;transition:border-color .2s;}
+.query-card:hover{border-color:var(--border-hover);}
+.query-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;}
+.query-route{font-size:16px;font-weight:500;color:var(--text);}
+.query-meta{font-size:12px;color:var(--text-tertiary);margin-top:2px;}
+.badge{font-size:10px;font-weight:500;padding:3px 10px;border-radius:20px;letter-spacing:.05em;text-transform:uppercase;}
+.badge-active{background:var(--blue-faint);color:var(--blue-light);border:0.5px solid var(--blue-border);}
+.badge-quoted{background:var(--amber-faint);color:var(--amber);border:0.5px solid rgba(239,159,39,0.3);}
+.badge-accepted{background:var(--green-faint);color:var(--green-light);border:0.5px solid rgba(59,109,17,0.3);}
+.badge-expired{background:rgba(255,255,255,0.05);color:var(--text-tertiary);border:0.5px solid var(--border);}
+.query-details{display:flex;gap:20px;flex-wrap:wrap;}
+.query-detail{font-size:12px;color:var(--text-secondary);}
+.query-detail span{color:var(--text-tertiary);margin-right:4px;}
+.query-timer{font-size:12px;color:var(--amber);font-weight:500;}
+.query-actions{display:flex;gap:8px;margin-top:14px;padding-top:14px;border-top:0.5px solid var(--border);}
+.btn-sm{height:34px;padding:0 16px;font-size:12px;font-weight:500;border-radius:var(--radius);cursor:pointer;font-family:var(--font);border:none;transition:all .2s;}
+.btn-blue{background:var(--blue);color:#fff;}
+.btn-blue:hover{background:#1a6dbb;}
+.btn-outline-sm{background:transparent;border:0.5px solid var(--border-hover);color:var(--text-secondary);}
+.btn-outline-sm:hover{border-color:var(--blue-border);color:var(--blue-light);}
+
+/* ── Quote Modal ── */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:200;align-items:center;justify-content:center;padding:24px;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--bg-card);border:0.5px solid var(--border-hover);border-radius:var(--radius-lg);width:100%;max-width:560px;max-height:90vh;overflow-y:auto;}
+.modal-header{padding:20px 24px;border-bottom:0.5px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.modal-title{font-family:var(--font-display);font-size:18px;font-weight:300;color:var(--gold);}
+.modal-close{background:none;border:none;color:var(--text-tertiary);cursor:pointer;font-size:20px;line-height:1;padding:2px;}
+.modal-close:hover{color:var(--text);}
+.modal-body{padding:24px;}
+.modal-footer{padding:16px 24px;border-top:0.5px solid var(--border);display:flex;gap:10px;justify-content:flex-end;}
+
+.select-input{width:100%;height:42px;padding:0 14px;background:rgba(255,255,255,0.04);border:0.5px solid var(--border-hover);border-radius:var(--radius);color:var(--text);font-size:14px;font-family:var(--font);outline:none;cursor:pointer;}
+.select-input:focus{border-color:var(--blue-light);}
+.select-input option{background:var(--bg-card);}
+
+.charge-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;}
+.charge-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:0.5px solid var(--border);}
+.charge-label{font-size:13px;color:var(--text-secondary);}
+.charge-value{font-size:13px;color:var(--text);font-weight:500;}
+.total-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;margin-top:8px;}
+.total-label{font-size:15px;font-weight:500;color:var(--text);}
+.total-value{font-size:20px;font-weight:500;color:var(--gold);font-family:var(--font-display);}
+.gst-row{font-size:12px;color:var(--text-tertiary);text-align:right;margin-top:-4px;}
+
+/* ── Aircraft Tab ── */
+.aircraft-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;}
+.aircraft-card{background:var(--bg-card);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:18px 20px;position:relative;}
+.aircraft-type{font-size:15px;font-weight:500;color:var(--text);margin-bottom:4px;}
+.aircraft-reg{font-size:12px;color:var(--text-tertiary);font-family:monospace;letter-spacing:.05em;}
+.aircraft-seats{font-size:12px;color:var(--blue-light);margin-top:8px;}
+.aircraft-remove{position:absolute;top:12px;right:12px;background:none;border:none;cursor:pointer;color:var(--text-tertiary);font-size:16px;line-height:1;}
+.aircraft-remove:hover{color:var(--red);}
+.btn-add{display:flex;align-items:center;gap:8px;height:42px;padding:0 18px;background:transparent;border:0.5px dashed var(--border-hover);border-radius:var(--radius);color:var(--text-secondary);font-size:13px;font-family:var(--font);cursor:pointer;transition:all .2s;width:100%;margin-top:4px;}
+.btn-add:hover{border-color:var(--blue-border);color:var(--blue-light);}
+
+/* ── Employees Tab ── */
+.employee-row{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:0.5px solid var(--border);}
+.employee-row:last-child{border-bottom:none;}
+.employee-info{display:flex;align-items:center;gap:12px;}
+.employee-avatar{width:36px;height:36px;border-radius:50%;background:var(--blue-faint);border:0.5px solid var(--blue-border);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;color:var(--blue-light);}
+.employee-name{font-size:13px;font-weight:500;color:var(--text);}
+.employee-username{font-size:11px;color:var(--text-tertiary);}
+.employee-status{display:flex;align-items:center;gap:6px;font-size:11px;}
+.status-dot{width:6px;height:6px;border-radius:50%;}
+.status-online{background:var(--green-light);}
+.status-offline{background:var(--text-tertiary);}
+
+/* ── Empty State ── */
+.empty-state{text-align:center;padding:48px 24px;}
+.empty-icon{width:48px;height:48px;border-radius:50%;background:var(--bg-card);border:0.5px solid var(--border);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;}
+.empty-title{font-size:15px;font-weight:500;color:var(--text);margin-bottom:6px;}
+.empty-sub{font-size:13px;color:var(--text-tertiary);}
+
+/* ── Tabs ── */
+.tab-row{display:flex;gap:4px;margin-bottom:20px;background:rgba(255,255,255,0.03);border-radius:var(--radius);padding:4px;}
+.tab-btn{flex:1;height:34px;background:transparent;border:none;border-radius:6px;color:var(--text-secondary);font-size:12px;font-weight:500;font-family:var(--font);cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:6px;}
+.tab-btn.active{background:var(--bg-card);color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,0.2);}
+
+/* ── Loading ── */
+.loading{text-align:center;padding:40px;color:var(--text-tertiary);font-size:13px;}
+
+/* ── Toast ── */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--bg-card);border:0.5px solid var(--border-hover);border-radius:var(--radius);padding:12px 18px;font-size:13px;color:var(--text);z-index:300;transform:translateY(80px);opacity:0;transition:all .3s;}
+.toast.show{transform:translateY(0);opacity:1;}
+.toast.success{border-color:rgba(59,109,17,0.5);color:var(--green-light);}
+.toast.error{border-color:rgba(226,75,74,0.5);color:var(--red);}
+
+textarea.field-input{height:80px;padding:10px 14px;resize:vertical;}
+</style>
+</head>
+<body>
+
+<!-- ── Login Page ── -->
+<div id="page-login">
+  <div class="login-box">
+    <div class="login-logo">
+      <span class="sky">Sky</span>
+      <span class="vayu">Vayu</span>
+    </div>
+    <h1 class="login-title">Operator Portal</h1>
+    <p class="login-sub">Sign in to manage your queries and quotes</p>
+    <div class="login-error" id="login-error">Invalid username or password</div>
+    <div class="field-group">
+      <label class="field-label">Username</label>
+      <input type="text" class="field-input" id="login-username" placeholder="Enter your username" onkeydown="if(event.key==='Enter')doLogin()"/>
+    </div>
+    <div class="field-group">
+      <label class="field-label">Password</label>
+      <input type="password" class="field-input" id="login-password" placeholder="Enter your password" onkeydown="if(event.key==='Enter')doLogin()"/>
+    </div>
+    <button class="btn-primary" id="login-btn" onclick="doLogin()">Sign in</button>
+  </div>
+</div>
+
+<!-- ── Dashboard ── -->
+<div id="page-dashboard">
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      <span class="sky">Sky</span>
+      <span class="vayu">Vayu</span>
+      <div class="portal-tag">Operator Portal</div>
+    </div>
+
+    <div class="operator-card">
+      <div class="op-name" id="sidebar-name">—</div>
+      <div class="op-role" id="sidebar-role">—</div>
+      <div class="op-online">Online</div>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-label">Queries</div>
+      <div class="nav-item active" onclick="showTab('active')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Active queries
+        <span class="nav-badge" id="badge-active">0</span>
+      </div>
+      <div class="nav-item" onclick="showTab('quoted')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        Quoted — pending
+        <span class="nav-badge" id="badge-quoted" style="background:rgba(239,159,39,0.3);color:var(--amber);">0</span>
+      </div>
+      <div class="nav-item" onclick="showTab('accepted')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+        Accepted bookings
+        <span class="nav-badge" id="badge-accepted" style="background:rgba(59,109,17,0.3);color:var(--green-light);">0</span>
+      </div>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-label">Management</div>
+      <div class="nav-item" onclick="showTab('fleet')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+        Fleet
+      </div>
+      <div class="nav-item" id="nav-employees" onclick="showTab('employees')" style="display:none;">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Employees
+      </div>
+    </div>
+
+    <div class="sidebar-footer">
+      <button class="btn-logout" onclick="doLogout()">Sign out</button>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main">
+
+    <!-- Active Queries -->
+    <div id="tab-active">
+      <div class="main-header">
+        <div class="page-title">Active queries</div>
+      </div>
+      <div class="main-content">
+        <div class="stat-row">
+          <div class="stat-card blue">
+            <div class="stat-num" id="stat-active">0</div>
+            <div class="stat-label">Active queries</div>
+          </div>
+          <div class="stat-card amber">
+            <div class="stat-num" id="stat-quoted">0</div>
+            <div class="stat-label">Awaiting response</div>
+          </div>
+          <div class="stat-card green">
+            <div class="stat-num" id="stat-accepted">0</div>
+            <div class="stat-label">Accepted this month</div>
+          </div>
+        </div>
+        <div id="active-queries-list"><div class="loading">Loading queries...</div></div>
+      </div>
+    </div>
+
+    <!-- Quoted Pending -->
+    <div id="tab-quoted" style="display:none;">
+      <div class="main-header">
+        <div class="page-title">Quoted — awaiting client response</div>
+      </div>
+      <div class="main-content">
+        <div id="quoted-queries-list"><div class="loading">Loading...</div></div>
+      </div>
+    </div>
+
+    <!-- Accepted -->
+    <div id="tab-accepted" style="display:none;">
+      <div class="main-header">
+        <div class="page-title">Accepted bookings</div>
+      </div>
+      <div class="main-content">
+        <div id="accepted-queries-list"><div class="loading">Loading...</div></div>
+      </div>
+    </div>
+
+    <!-- Fleet -->
+    <div id="tab-fleet" style="display:none;">
+      <div class="main-header">
+        <div class="page-title">Fleet management</div>
+      </div>
+      <div class="main-content">
+        <div class="aircraft-grid" id="aircraft-grid"></div>
+        <button class="btn-add" onclick="openAircraftModal()" style="margin-top:16px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Add aircraft
+        </button>
+      </div>
+    </div>
+
+    <!-- Employees -->
+    <div id="tab-employees" style="display:none;">
+      <div class="main-header">
+        <div class="page-title">Employee accounts</div>
+      </div>
+      <div class="main-content">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Team members</span>
+            <button class="btn-sm btn-blue" onclick="openEmployeeModal()">+ Add employee</button>
+          </div>
+          <div class="card-body">
+            <div id="employees-list"><div class="loading">Loading...</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── Quote Modal ── -->
+<div class="modal-overlay" id="quote-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Submit quote</span>
+      <button class="modal-close" onclick="closeModal('quote-modal')">×</button>
+    </div>
+    <div class="modal-body">
+      <div id="quote-query-info" style="background:rgba(255,255,255,0.03);border-radius:var(--radius);padding:12px 14px;margin-bottom:20px;font-size:13px;color:var(--text-secondary);"></div>
+
+      <div class="field-group">
+        <label class="field-label">Select aircraft</label>
+        <select class="select-input" id="quote-aircraft" onchange="onAircraftChange()">
+          <option value="">Choose aircraft...</option>
+        </select>
+      </div>
+
+      <div class="charge-grid">
+        <div class="field-group">
+          <label class="field-label">Base charge (₹)</label>
+          <input type="number" class="field-input" id="q-base" placeholder="0" oninput="calcQuote()"/>
+        </div>
+        <div class="field-group">
+          <label class="field-label">Handling fee (₹)</label>
+          <input type="number" class="field-input" id="q-handling" placeholder="0" oninput="calcQuote()"/>
+        </div>
+        <div class="field-group">
+          <label class="field-label">Crew accommodation (₹)</label>
+          <input type="number" class="field-input" id="q-crew" placeholder="0" oninput="calcQuote()"/>
+        </div>
+        <div class="field-group">
+          <label class="field-label">Catering (₹)</label>
+          <input type="number" class="field-input" id="q-catering" placeholder="0" oninput="calcQuote()"/>
+        </div>
+      </div>
+
+      <div style="background:var(--bg-secondary);border-radius:var(--radius);padding:14px 16px;">
+        <div class="charge-row">
+          <span class="charge-label">Subtotal</span>
+          <span class="charge-value" id="q-subtotal">₹0</span>
+        </div>
+        <div class="charge-row">
+          <span class="charge-label">GST (18%)</span>
+          <span class="charge-value" id="q-gst">₹0</span>
+        </div>
+        <div class="total-row">
+          <span class="total-label">Total quote</span>
+          <span class="total-value" id="q-total">₹0</span>
+        </div>
+      </div>
+
+      <div class="field-group" style="margin-top:16px;">
+        <label class="field-label">Notes to client (optional)</label>
+        <textarea class="field-input" id="q-notes" placeholder="Any additional information..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-sm btn-outline-sm" onclick="closeModal('quote-modal')">Cancel</button>
+      <button class="btn-sm btn-blue" onclick="submitQuote()">Submit quote</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Aircraft Modal ── -->
+<div class="modal-overlay" id="aircraft-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Add aircraft</span>
+      <button class="modal-close" onclick="closeModal('aircraft-modal')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="field-group">
+        <label class="field-label">Aircraft type</label>
+        <input type="text" class="field-input" id="ac-type" placeholder="e.g. Citation XLS"/>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Registration</label>
+        <input type="text" class="field-input" id="ac-reg" placeholder="e.g. VT-ABC"/>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Seats</label>
+        <input type="number" class="field-input" id="ac-seats" placeholder="e.g. 8" min="1" max="50"/>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-sm btn-outline-sm" onclick="closeModal('aircraft-modal')">Cancel</button>
+      <button class="btn-sm btn-blue" onclick="saveAircraft()">Add aircraft</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Employee Modal ── -->
+<div class="modal-overlay" id="employee-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Add employee</span>
+      <button class="modal-close" onclick="closeModal('employee-modal')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="field-group">
+        <label class="field-label">Full name</label>
+        <input type="text" class="field-input" id="emp-name" placeholder="Employee full name"/>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Username</label>
+        <input type="text" class="field-input" id="emp-username" placeholder="Choose a username"/>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Password</label>
+        <input type="password" class="field-input" id="emp-password" placeholder="Set a password"/>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-sm btn-outline-sm" onclick="closeModal('employee-modal')">Cancel</button>
+      <button class="btn-sm btn-blue" onclick="saveEmployee()">Create account</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+var SUPABASE_URL = 'https://avabdfbotzlqqhopuwjm.supabase.co';
+var SUPABASE_KEY = 'sb_publishable_k3-f2knVbBIrWN__8TTWlg_pUn-_nfs';
+
+var currentUser = null;
+var currentOperator = null;
+var currentQueryId = null;
+var aircraftList = [];
+var lastCharges = {};
+
+function sbFetch(path, opts) {
+  opts = opts || {};
+  var headers = {
+    'Content-Type': 'application/json',
+    'apikey': SUPABASE_KEY,
+    'Authorization': 'Bearer ' + SUPABASE_KEY
+  };
+  if (opts.prefer) headers['Prefer'] = opts.prefer;
+  return fetch(SUPABASE_URL + '/rest/v1/' + path, {
+    method: opts.method || 'GET',
+    headers: headers,
+    body: opts.body ? JSON.stringify(opts.body) : undefined
+  }).then(function(r){ return r.json().then(function(d){ return {ok:r.ok, status:r.status, data:d}; }); });
+}
+
+async function doLogin() {
+  var username = document.getElementById('login-username').value.trim();
+  var password = document.getElementById('login-password').value;
+  var errEl = document.getElementById('login-error');
+  errEl.classList.remove('show');
+
+  if (!username || !password) { errEl.textContent = 'Please enter username and password'; errEl.classList.add('show'); return; }
+
+  document.getElementById('login-btn').disabled = true;
+  document.getElementById('login-btn').textContent = 'Signing in...';
+
+  try {
+    // Step 1: get user
+    var userRes = await sbFetch('operator_users?username=eq.' + encodeURIComponent(username));
+    if (!userRes.ok || !userRes.data || userRes.data.length === 0) throw new Error('Invalid credentials');
+    var user = userRes.data[0];
+    if (!user.is_active) throw new Error('Account inactive');
+    if ((user.password_hash || '').trim() !== (password || '').trim()) throw new Error('Invalid credentials');
+
+    // Step 2: get operator
+    var opRes = await sbFetch('operators?id=eq.' + user.operator_id);
+    if (!opRes.ok || !opRes.data || opRes.data.length === 0) throw new Error('Operator not found');
+    var operator = opRes.data[0];
+
+    currentUser = user;
+    currentOperator = operator;
+
+    // Update last login
+    await sbFetch('operator_users?id=eq.' + user.id, { method:'PATCH', body:{ last_login: new Date().toISOString() } });
+
+    document.getElementById('page-login').style.display = 'none';
+    document.getElementById('page-dashboard').classList.add('active');
+    document.getElementById('sidebar-name').textContent = user.full_name || username;
+    document.getElementById('sidebar-role').textContent = user.role === 'owner' ? operator.company_name + ' · Owner' : operator.company_name + ' · Sales';
+    if (user.role === 'owner') document.getElementById('nav-employees').style.display = 'flex';
+
+    loadDashboard();
+  } catch(e) {
+    errEl.textContent = 'Invalid username or password';
+    errEl.classList.add('show');
+  }
+
+  document.getElementById('login-btn').disabled = false;
+  document.getElementById('login-btn').textContent = 'Sign in';
+}
+
+function doLogout() {
+  currentUser = null;
+  currentOperator = null;
+  document.getElementById('page-dashboard').classList.remove('active');
+  document.getElementById('page-login').style.display = 'flex';
+  document.getElementById('login-username').value = '';
+  document.getElementById('login-password').value = '';
+}
+
+function showTab(tab) {
+  ['active','quoted','accepted','fleet','employees'].forEach(function(t) {
+    var el = document.getElementById('tab-' + t);
+    if (el) el.style.display = 'none';
+  });
+  document.getElementById('tab-' + tab).style.display = 'block';
+  document.querySelectorAll('.nav-item').forEach(function(el){ el.classList.remove('active'); });
+  var navItem = document.querySelector('[onclick="showTab(\'' + tab + '\')"]');
+  if (navItem) navItem.classList.add('active');
+
+  if (tab === 'fleet') loadFleet();
+  if (tab === 'employees') loadEmployees();
+}
+
+async function loadDashboard() {
+  await loadQueries();
+  loadFleet();
+}
+
+function fmtDate(d) {
+  if (!d) return '—';
+  var p = d.split('-');
+  if (p.length !== 3) return d;
+  return p[2] + '-' + p[1] + '-' + p[0];
+}
+
+function fmtPrice(n) {
+  return '₹' + Number(n).toLocaleString('en-IN');
+}
+
+function timeRemaining(expiresAt) {
+  var diff = new Date(expiresAt) - new Date();
+  if (diff <= 0) return 'Expired';
+  var mins = Math.floor(diff / 60000);
+  var secs = Math.floor((diff % 60000) / 1000);
+  return mins + 'm ' + secs + 's remaining';
+}
+
+async function loadQueries() {
+  var opId = currentOperator.id;
+
+  // Load all queries (active = not expired and open)
+  var activeRes = await sbFetch('queries?status=eq.open&expires_at=gt.' + new Date().toISOString() + '&order=created_at.desc');
+  // Load quotes by this operator
+  var quotesRes = await sbFetch('quotes?operator_id=eq.' + opId + '&select=*,queries(*)&order=created_at.desc');
+
+  var activeQueries = activeRes.ok ? activeRes.data : [];
+  var myQuotes = quotesRes.ok ? quotesRes.data : [];
+
+  var quotedQueryIds = myQuotes.map(function(q){ return q.query_id; });
+  var unquoted = activeQueries.filter(function(q){ return !quotedQueryIds.includes(q.id); });
+  var quotedPending = myQuotes.filter(function(q){ return q.status === 'pending'; });
+  var accepted = myQuotes.filter(function(q){ return q.status === 'accepted'; });
+
+  document.getElementById('stat-active').textContent = unquoted.length;
+  document.getElementById('stat-quoted').textContent = quotedPending.length;
+  document.getElementById('stat-accepted').textContent = accepted.length;
+  document.getElementById('badge-active').textContent = unquoted.length;
+  document.getElementById('badge-quoted').textContent = quotedPending.length;
+  document.getElementById('badge-accepted').textContent = accepted.length;
+
+  renderActiveQueries(unquoted);
+  renderQuotedQueries(quotedPending);
+  renderAcceptedQueries(accepted);
+}
+
+function renderActiveQueries(queries) {
+  var el = document.getElementById('active-queries-list');
+  if (!queries.length) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#85B7EB" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div class="empty-title">No active queries</div><div class="empty-sub">New client queries will appear here</div></div>';
+    return;
+  }
+  el.innerHTML = queries.map(function(q) {
+    var route = q.trip_type === 'multi' ? (q.sectors ? q.sectors.length + ' sectors' : 'Multiple sectors') : (q.departure || '—') + ' → ' + (q.destination || '—');
+    return '<div class="query-card">'
+      + '<div class="query-top">'
+      + '<div><div class="query-route">' + route + '</div>'
+      + '<div class="query-meta">' + (q.trip_type === 'oneway' ? 'One way' : q.trip_type === 'return' ? 'Round trip' : 'Multi sector') + ' · ' + fmtDate(q.flight_date) + (q.flight_time ? ' at ' + q.flight_time : '') + '</div></div>'
+      + '<span class="badge badge-active">Active</span>'
+      + '</div>'
+      + '<div class="query-details">'
+      + '<div class="query-detail"><span>Pax</span>' + q.passengers + '</div>'
+      + (q.medivac ? '<div class="query-detail"><span>Medivac</span>Yes</div>' : '')
+      + (q.pets ? '<div class="query-detail"><span>Pets</span>Yes</div>' : '')
+      + '</div>'
+      + '<div class="query-timer" id="timer-' + q.id + '">' + timeRemaining(q.expires_at) + '</div>'
+      + '<div class="query-actions">'
+      + '<button class="btn-sm btn-blue" onclick="openQuoteModal(\'' + q.id + '\')">Submit quote</button>'
+      + '</div></div>';
+  }).join('');
+
+  // Live timers
+  queries.forEach(function(q) {
+    setInterval(function() {
+      var el = document.getElementById('timer-' + q.id);
+      if (el) el.textContent = timeRemaining(q.expires_at);
+    }, 1000);
+  });
+}
+
+function renderQuotedQueries(quotes) {
+  var el = document.getElementById('quoted-queries-list');
+  if (!quotes.length) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#85B7EB" stroke-width="1.5" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div><div class="empty-title">No pending quotes</div><div class="empty-sub">Quotes awaiting client response will appear here</div></div>';
+    return;
+  }
+  el.innerHTML = quotes.map(function(q) {
+    var query = q.queries || {};
+    var route = query.trip_type === 'multi' ? 'Multiple sectors' : (query.departure || '—') + ' → ' + (query.destination || '—');
+    return '<div class="query-card">'
+      + '<div class="query-top">'
+      + '<div><div class="query-route">' + route + '</div>'
+      + '<div class="query-meta">' + fmtDate(query.flight_date) + ' · ' + (q.aircraft_type || '—') + '</div></div>'
+      + '<span class="badge badge-quoted">Quoted</span>'
+      + '</div>'
+      + '<div class="query-details">'
+      + '<div class="query-detail"><span>Your quote</span>' + fmtPrice(q.price) + '</div>'
+      + '<div class="query-detail"><span>Pax</span>' + (query.passengers || '—') + '</div>'
+      + '</div></div>';
+  }).join('');
+}
+
+function renderAcceptedQueries(quotes) {
+  var el = document.getElementById('accepted-queries-list');
+  if (!quotes.length) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#97C459" stroke-width="1.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div><div class="empty-title">No accepted bookings yet</div><div class="empty-sub">Flights booked by clients will appear here</div></div>';
+    return;
+  }
+  el.innerHTML = quotes.map(function(q) {
+    var query = q.queries || {};
+    var route = query.trip_type === 'multi' ? 'Multiple sectors' : (query.departure || '—') + ' → ' + (query.destination || '—');
+    return '<div class="query-card">'
+      + '<div class="query-top">'
+      + '<div><div class="query-route">' + route + '</div>'
+      + '<div class="query-meta">' + fmtDate(query.flight_date) + ' · ' + (q.aircraft_type || '—') + ' · ' + (q.aircraft_registration || '—') + '</div></div>'
+      + '<span class="badge badge-accepted">Accepted</span>'
+      + '</div>'
+      + '<div class="query-details">'
+      + '<div class="query-detail"><span>Booking value</span>' + fmtPrice(q.price) + '</div>'
+      + '<div class="query-detail"><span>Pax</span>' + (query.passengers || '—') + '</div>'
+      + (q.client_name ? '<div class="query-detail"><span>Client</span>' + q.client_name + '</div>' : '')
+      + '</div></div>';
+  }).join('');
+}
+
+async function loadFleet() {
+  var res = await sbFetch('aircraft?operator_id=eq.' + currentOperator.id + '&is_active=eq.true&order=created_at.asc');
+  aircraftList = res.ok ? res.data : [];
+  var grid = document.getElementById('aircraft-grid');
+  if (!aircraftList.length) {
+    grid.innerHTML = '<div style="grid-column:span 2;"><div class="empty-state"><div class="empty-title">No aircraft added</div><div class="empty-sub">Add your fleet to start submitting quotes</div></div></div>';
+    return;
+  }
+  grid.innerHTML = aircraftList.map(function(a) {
+    return '<div class="aircraft-card">'
+      + '<button class="aircraft-remove" onclick="removeAircraft(\'' + a.id + '\')">×</button>'
+      + '<div class="aircraft-type">' + a.aircraft_type + '</div>'
+      + '<div class="aircraft-reg">' + a.registration + '</div>'
+      + (a.seats ? '<div class="aircraft-seats">' + a.seats + ' seats</div>' : '')
+      + '</div>';
+  }).join('');
+}
+
+async function saveAircraft() {
+  var type = document.getElementById('ac-type').value.trim();
+  var reg = document.getElementById('ac-reg').value.trim();
+  var seats = parseInt(document.getElementById('ac-seats').value) || null;
+  if (!type || !reg) { showToast('Please enter aircraft type and registration', 'error'); return; }
+
+  var res = await sbFetch('aircraft', { method:'POST', body:{ operator_id: currentOperator.id, aircraft_type: type, registration: reg, seats: seats }, prefer:'return=representation' });
+  if (res.ok) {
+    closeModal('aircraft-modal');
+    document.getElementById('ac-type').value = '';
+    document.getElementById('ac-reg').value = '';
+    document.getElementById('ac-seats').value = '';
+    loadFleet();
+    showToast('Aircraft added successfully', 'success');
+  } else {
+    showToast('Failed to add aircraft', 'error');
+  }
+}
+
+async function removeAircraft(id) {
+  if (!confirm('Remove this aircraft?')) return;
+  await sbFetch('aircraft?id=eq.' + id, { method:'PATCH', body:{ is_active: false } });
+  loadFleet();
+  showToast('Aircraft removed', 'success');
+}
+
+async function loadEmployees() {
+  var res = await sbFetch('operator_users?operator_id=eq.' + currentOperator.id + '&role=eq.employee&order=created_at.asc');
+  var employees = res.ok ? res.data : [];
+  var el = document.getElementById('employees-list');
+  if (!employees.length) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-title">No employees added</div><div class="empty-sub">Create accounts for your sales team</div></div>';
+    return;
+  }
+  el.innerHTML = employees.map(function(e) {
+    var initials = (e.full_name || e.username).split(' ').map(function(w){ return w[0]; }).join('').substring(0,2).toUpperCase();
+    var isRecent = e.last_login && (new Date() - new Date(e.last_login)) < 30 * 60 * 1000;
+    return '<div class="employee-row">'
+      + '<div class="employee-info">'
+      + '<div class="employee-avatar">' + initials + '</div>'
+      + '<div><div class="employee-name">' + (e.full_name || e.username) + '</div>'
+      + '<div class="employee-username">@' + e.username + '</div></div>'
+      + '</div>'
+      + '<div class="employee-status">'
+      + '<div class="status-dot ' + (isRecent ? 'status-online' : 'status-offline') + '"></div>'
+      + '<span style="color:var(--text-tertiary)">' + (isRecent ? 'Online' : e.last_login ? 'Last seen ' + new Date(e.last_login).toLocaleDateString() : 'Never logged in') + '</span>'
+      + '</div></div>';
+  }).join('');
+}
+
+async function saveEmployee() {
+  var name = document.getElementById('emp-name').value.trim();
+  var username = document.getElementById('emp-username').value.trim();
+  var password = document.getElementById('emp-password').value;
+  if (!name || !username || !password) { showToast('Please fill in all fields', 'error'); return; }
+
+  var res = await sbFetch('operator_users', { method:'POST', body:{ operator_id: currentOperator.id, full_name: name, username: username, password_hash: password, role: 'employee' }, prefer:'return=representation' });
+  if (res.ok) {
+    closeModal('employee-modal');
+    document.getElementById('emp-name').value = '';
+    document.getElementById('emp-username').value = '';
+    document.getElementById('emp-password').value = '';
+    loadEmployees();
+    showToast('Employee account created', 'success');
+  } else {
+    showToast('Username already taken or error occurred', 'error');
+  }
+}
+
+async function openQuoteModal(queryId) {
+  currentQueryId = queryId;
+
+  // Get query details
+  var res = await sbFetch('queries?id=eq.' + queryId);
+  var query = res.data && res.data[0];
+  if (!query) return;
+
+  var route = query.trip_type === 'multi' ? 'Multiple sectors' : (query.departure || '—') + ' → ' + (query.destination || '—');
+  document.getElementById('quote-query-info').innerHTML =
+    '<strong style="color:var(--text);">' + route + '</strong><br>'
+    + (fmtDate(query.flight_date)) + (query.flight_time ? ' at ' + query.flight_time : '') + ' &nbsp;·&nbsp; ' + query.passengers + ' pax';
+
+  // Populate aircraft dropdown
+  var sel = document.getElementById('quote-aircraft');
+  sel.innerHTML = '<option value="">Choose aircraft...</option>'
+    + aircraftList.map(function(a){ return '<option value="' + a.id + '" data-type="' + a.aircraft_type + '" data-reg="' + a.registration + '">' + a.aircraft_type + ' — ' + a.registration + '</option>'; }).join('');
+
+  // Reset fields
+  ['q-base','q-handling','q-crew','q-catering','q-notes'].forEach(function(id){ document.getElementById(id).value = ''; });
+  calcQuote();
+
+  document.getElementById('quote-modal').classList.add('open');
+}
+
+function onAircraftChange() {
+  var aircraftId = document.getElementById('quote-aircraft').value;
+  if (!aircraftId || !lastCharges[aircraftId]) return;
+  var last = lastCharges[aircraftId];
+  document.getElementById('q-base').value = last.base || '';
+  document.getElementById('q-handling').value = last.handling || '';
+  document.getElementById('q-crew').value = last.crew || '';
+  document.getElementById('q-catering').value = last.catering || '';
+  calcQuote();
+}
+
+function calcQuote() {
+  var base = parseFloat(document.getElementById('q-base').value) || 0;
+  var handling = parseFloat(document.getElementById('q-handling').value) || 0;
+  var crew = parseFloat(document.getElementById('q-crew').value) || 0;
+  var catering = parseFloat(document.getElementById('q-catering').value) || 0;
+  var subtotal = base + handling + crew + catering;
+  var gst = Math.round(subtotal * 0.18);
+  var total = subtotal + gst;
+  document.getElementById('q-subtotal').textContent = fmtPrice(subtotal);
+  document.getElementById('q-gst').textContent = fmtPrice(gst);
+  document.getElementById('q-total').textContent = fmtPrice(total);
+}
+
+async function submitQuote() {
+  var aircraftId = document.getElementById('quote-aircraft').value;
+  var base = parseFloat(document.getElementById('q-base').value) || 0;
+  var handling = parseFloat(document.getElementById('q-handling').value) || 0;
+  var crew = parseFloat(document.getElementById('q-crew').value) || 0;
+  var catering = parseFloat(document.getElementById('q-catering').value) || 0;
+  var notes = document.getElementById('q-notes').value.trim();
+
+  if (!aircraftId) { showToast('Please select an aircraft', 'error'); return; }
+  if (!base) { showToast('Please enter at least a base charge', 'error'); return; }
+
+  var subtotal = base + handling + crew + catering;
+  var gst = Math.round(subtotal * 0.18);
+  var total = subtotal + gst;
+
+  var sel = document.getElementById('quote-aircraft');
+  var opt = sel.options[sel.selectedIndex];
+  var aircraftType = opt.dataset.type;
+  var aircraftReg = opt.dataset.reg;
+
+  var quoteRes = await sbFetch('quotes', {
+    method: 'POST',
+    prefer: 'return=representation',
+    body: {
+      query_id: currentQueryId,
+      operator_id: currentOperator.id,
+      operator_name: currentOperator.company_name,
+      aircraft_id: aircraftId,
+      aircraft_type: aircraftType,
+      aircraft_registration: aircraftReg,
+      price: total,
+      notes: notes,
+      status: 'pending',
+      submitted_by: currentUser.id
+    }
+  });
+
+  if (!quoteRes.ok) { showToast('Failed to submit quote', 'error'); return; }
+
+  var quoteId = quoteRes.data[0].id;
+
+  // Save charge breakdown
+  await sbFetch('quote_items', {
+    method: 'POST',
+    body: {
+      quote_id: quoteId,
+      base_charge: base,
+      handling_fee: handling,
+      crew_accommodation: crew,
+      catering: catering,
+      gst_amount: gst,
+      total: total
+    }
+  });
+
+  // Cache last charges for this aircraft
+  lastCharges[aircraftId] = { base, handling, crew, catering };
+
+  closeModal('quote-modal');
+  showToast('Quote submitted successfully!', 'success');
+  loadDashboard();
+}
+
+function openAircraftModal() { document.getElementById('aircraft-modal').classList.add('open'); }
+function openEmployeeModal() { document.getElementById('employee-modal').classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+function showToast(msg, type) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast ' + (type || '');
+  t.classList.add('show');
+  setTimeout(function(){ t.classList.remove('show'); }, 3000);
+}
+
+// Close modals on overlay click
+document.querySelectorAll('.modal-overlay').forEach(function(el) {
+  el.addEventListener('click', function(e) {
+    if (e.target === el) el.classList.remove('open');
+  });
+});
+</script>
+</body>
+</html>
