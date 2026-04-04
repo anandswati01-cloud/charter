@@ -1,0 +1,9 @@
+{
+  "rewrites": [
+    { "source": "/operator.html", "destination": "/operator.html" },
+    { "source": "/booking",       "destination": "/booking.html" },
+    { "source": "/results",       "destination": "/results.html" },
+    { "source": "/payment",       "destination": "/payment.html" },
+    { "source": "/confirmed",     "destination": "/confirmed.html" }
+  ]
+}
