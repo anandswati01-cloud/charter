@@ -140,7 +140,6 @@ function sendOTP() {
   var phone = document.getElementById('otp-phone').value.trim();
   var code  = document.getElementById('country-code').value;
 
-  // Validate: digits only, 6–15 chars
   if (!phone || !/^\d{6,15}$/.test(phone)) {
     showErr('otp-phone', 'err-otp-phone');
     return;
@@ -148,22 +147,24 @@ function sendOTP() {
 
   otpPhone = code + phone;
 
-  /*
-   * DEMO MODE — generates OTP locally.
-   * TODO: Replace with MSG91 (or equivalent) API call.
-   * The generated code must NEVER be logged to console in production.
-   * Example MSG91 call:
-   *   fetch('https://api.msg91.com/api/v5/otp?...')
-   */
   otpGenerated = Math.floor(100000 + Math.random() * 900000).toString();
-  // NOTE: console.log removed for security — check your SMS provider dashboard instead.
+
+  // DEMO MODE — remove this before launch
+  var demoBar = document.getElementById('otp-demo-bar');
+  if (!demoBar) {
+    demoBar = document.createElement('div');
+    demoBar.id = 'otp-demo-bar';
+    demoBar.style.cssText = 'margin-top:10px;padding:10px 14px;background:rgba(232,216,160,0.1);border:0.5px solid rgba(232,216,160,0.3);border-radius:8px;font-size:13px;color:#E8D8A0;';
+    demoBar.innerHTML = '🔑 <strong>DEMO OTP:</strong> <span id="otp-demo-code"></span>';
+    document.getElementById('otp-entry-wrap').insertAdjacentElement('beforebegin', demoBar);
+  }
+  document.getElementById('otp-demo-code').textContent = otpGenerated;
 
   document.getElementById('btn-send-otp').disabled = true;
   document.getElementById('btn-send-otp').textContent = 'Sent!';
   document.getElementById('otp-entry-wrap').style.display = 'block';
   document.getElementById('otp-d1').focus();
 
-  // Countdown before resend is allowed
   var secs = 30;
   var resendEl = document.querySelector('.otp-resend');
   resendEl.innerHTML = 'Resend in ' + secs + 's · <a onclick="changePhone()">Change number</a>';
@@ -230,7 +231,6 @@ function changePhone() {
 }
 
 function otpNext(el, nextId) {
-  // Allow only single digits
   el.value = el.value.replace(/[^0-9]/g, '').charAt(0);
   if (el.value && nextId) document.getElementById(nextId).focus();
   var allFilled = ['otp-d1','otp-d2','otp-d3','otp-d4','otp-d5','otp-d6']
